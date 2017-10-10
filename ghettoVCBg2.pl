@@ -1,10 +1,4 @@
 #!/usr/bin/perl -w
-##################################################################
-# Author: William Lam
-# Email: william2003[at]gmail[dot]com
-# Created on: 02/21/2009
-# http://www.engineering.ucsb.edu/~duonglt/vmware/
-##################################################################
 
 use strict;
 use warnings;
@@ -32,7 +26,7 @@ use Net::SMTP;
 my $SEND_MAIL = "no";
 my $EMAIL_HOST = "emailserver";
 my $EMAIL_DOMAIN = "localhost.localdomain";
-my $EMAIL_TO = 'William Lam <william@primp-industries.com.com>';
+my $EMAIL_TO = 'Ajit Sirohi <ajit@idrive.com>';
 my $EMAIL_FROM = 'ghettoVCBg2 <ghettoVCBg2@primp-industries.com.com>';
 
 ###############################################################
@@ -149,26 +143,26 @@ $Util::script_version = $ver;
 
 my %opts = (
     vmlist => {
-    type => "=s",
-    help => "A file containing a list of virtual machine(s) to be backed up on host",
-    required => 1,
+        type => "=s",
+        help => "A file containing a list of virtual machine(s) to be backed up on host",
+        required => 1,
     },
     output => {
-    type => "=s",
-    default => "/tmp/ghettoVCBg2.log",
+        type => "=s",
+        default => "/tmp/ghettoVCBg2.log",
         help => "Full path to output log (default /tmp/ghettoVCBg2.log)",
-    required => 0,
+        required => 0,
     },
     dryrun => {
-    type => "=s",
-    default => "0",
+        type => "=s",
+        default => "0",
         help => "Set to 1 to enable dryrun mode (default 0)",
-    required => 0,
+        required => 0,
     },
     config_dir => {
-    type => "=s",
-    help => "Name of directory containing VM(s) backup configurations",
-    required => 0,
+        type => "=s",
+        help => "Name of directory containing VM(s) backup configurations",
+        required => 0,
     },
 );
 
@@ -210,35 +204,6 @@ my @vima_targets = ('192.168.1.132');
 my $vifs_cmd = "/usr/bin/vifs";
 my $vmkfstools_cmd = "/usr/bin/vmkfstools";
 
-#if(-f "/etc/vima-release") {
-#    open(VIMA_REL, "/etc/vima-release") || die "Couldn't open the /etc/vima-release!";
-#} elsif(-f "/etc/vma-release") {
-#    open(VIMA_REL, "/etc/vma-release") || die "Couldn't open the /etc/vma-release!";
-#}
-
-#while (<VIMA_REL>) {
-#    my $line = $_;
-#    my ($prod, $ver, $build) = split(' ',$line);    
-#    $vima_ver = $ver;
-#    last if $. == 1;
-#}
-#close(VIMA_REL);
-
-#if($vima_ver eq "1.0.0") {
-#    $vifs_cmd = "/usr/bin/vifs.pl";
-#    $vmkfstools_cmd = "/usr/bin/vmkfstools.pl";
-#    @vima_targets = VIFPLib::enumerate_targets();
-#} elsif($vima_ver eq "4.0.0") {
-#    $vifs_cmd = "/usr/bin/vifs";
-#    $vmkfstools_cmd = "/usr/bin/vmkfstools";
-#    @vima_targets = VIFPLib::enumerate_targets();
-#} elsif($vima_ver eq "4.1.0") {
-#    $vifs_cmd = "/usr/bin/vifs";
-#        $vmkfstools_cmd = "/usr/bin/vmkfstools";
-#    @vima_targets = VmaTargetLib::enumerate_targets();
-#} else {
-#    die "Script only supports VMware VIMA 1.0.0 and vMA 4.x.x+\n";
-#}
 
 &log("info", "============================== ghettoVCBg2 LOG START ==============================");
 $semCopyTaskStart->up; # now CopyTask can do loging
@@ -268,16 +233,8 @@ foreach my $vima_host (@vima_targets) {
 
     # login using fastpass
     eval {
-        #if($vima_ver eq "1.0.0" || $vima_ver eq "4.0.0") {
-        #    &log("debug", "Main: Login by vi-fastpass to: " . $host);
-        #    VIFPLib::login_by_fastpass($host);
-        #} elsif($vima_ver eq "4.1.0") {
-        #    $host = $vima_host->name();
-        #    &log("debug", "Main: Login by vi-fastpass to: " . $host);
-        #    $vima_host->login();
-        #} 
+        &log("debug", "Main: Connecting to: " . $host);
 	Util::connect();
-	
     };
     if(!$@) {
         #validate ESX/ESXi host
@@ -409,7 +366,7 @@ sub copyTask {
             &log("debug", "CopyThread: Start backing up VMDK(s) ...");
             eval {
                 my $vmkfstools_cpy = `$copyCmd` ;
-                                &log("debug", "copyTask: send copySuccess message ...");
+                &log("debug", "copyTask: send copySuccess message ...");
                 $copyThreadStatus= "copySuccess";
             } or do {    
                 &log("error", "CopyTask: ". $@ );
@@ -483,24 +440,24 @@ sub getFinalList {
 # Subroutine to process the input file
 sub processFile {
     my ($vmlist) =  @_;
-       my $HANDLE;
+    my $HANDLE;
     open (HANDLE, $vmlist) or die(timeStamp('MDYHMS'), "ERROR: Can not locate \"$vmlist\" input file!\n");
-       my @lines = <HANDLE>;
-       my @errorArray;
-       my $line_no = 0;
+    my @lines = <HANDLE>;
+    my @errorArray;
+    my $line_no = 0;
 
-       close(HANDLE);
-       foreach my $line (@lines) {
+    close(HANDLE);
+    foreach my $line (@lines) {
         $line_no++;
-              &TrimSpaces($line);
+        &TrimSpaces($line);
 
-              if($line) {
-                if($line =~ /^\s*:|:\s*$/){
-                        &log("error", "Error in Parsing File at line: $line_no");
-                        &log("info", "Continuing to the next line");
-                        next;
-                 }
-                my $vm = $line;
+        if($line) {
+    	    if($line =~ /^\s*:|:\s*$/){
+    		&log("error", "Error in Parsing File at line: $line_no");
+		&log("info", "Continuing to the next line");
+		next;
+            }
+            my $vm = $line;
             &TrimSpaces($vm);
 
             #only update the list on the following cases:
@@ -510,8 +467,8 @@ sub processFile {
                 push @vm_backup_list,$vm;
                 $success_backups{$vm} = 0;
             }
-              }
-       }
+        }
+    }
 }
 
 sub TrimSpaces {
@@ -525,7 +482,7 @@ sub backUpVMs {
     my $vm_backup_dir;
     my $snapshot_name;
     my $original_vm_state;
-       my $returnval;
+    my $returnval;
 
     my $count = 0;
     foreach my $vm_name (@vm_backup_list) {
@@ -544,8 +501,10 @@ sub backUpVMs {
                 } else {
                     my $devices = $vm_view->config->hardware->device;
                     foreach my $device (@$devices) {
+                        
                         #verify device is virtual disk
-                            if ( ($device->isa('VirtualDisk')) ) {
+                        if ( ($device->isa('VirtualDisk')) ) {
+                            
                             #verify thick/eagerzeroedthick
                             if( ($device->backing->isa('VirtualDiskFlatVer1BackingInfo')) || ($device->backing->isa('VirtualDiskFlatVer2BackingInfo')) ) {
                                 #check for independent disks
@@ -559,18 +518,18 @@ sub backUpVMs {
                             elsif ( ($device->backing->isa('VirtualDiskSparseVer1BackingInfo')) || ($device->backing->isa('VirtualDiskSparseVer2BackingInfo')) ) {
                                 #check for independent disks
                                 if( ($device->backing->diskMode eq 'independent_persistent') || ($device->backing->diskMode eq 'independent_nonpersistent') ) {
-                                                                        $vmdk_type{$device->key} = "independent";
-                                                                } else {
-                                                                        $vmdk_type{$device->key} = "sparse";
+                                     $vmdk_type{$device->key} = "independent";
+                                } else {
+                                     $vmdk_type{$device->key} = "sparse";
                                 }
                             }
                             #verify RDM w/virtual compatiablity mode
                             elsif ( ($device->backing->isa('VirtualDiskRawDiskMappingVer1BackingInfo')) && ($device->backing->compatibilityMode eq 'virtualMode') ) {
                                 #check for independent disks
                                 if( ($device->backing->diskMode eq 'independent_persistent') || ($device->backing->diskMode eq 'independent_nonpersistent') ) {
-                                                                        $vmdk_type{$device->key} = "independent";
-                                                                } else {
-                                                                        $vmdk_type{$device->key} = "vrdm";
+                                     $vmdk_type{$device->key} = "independent";
+                                } else {
+                                     $vmdk_type{$device->key} = "vrdm";
                                 }
                             }
                             elsif ( ($device->backing->isa('VirtualDiskRawDiskMappingVer1BackingInfo')) && ($device->backing->compatibilityMode eq 'physicalMode') ) {
@@ -579,35 +538,36 @@ sub backUpVMs {
                         }
                     }
                     my $vmx_config = $vm_view->config->files->vmPathName;
-                    $vm_backup_dir = "[$VM_BACKUP_DATASTORE] $VM_BACKUP_DIRECTORY/$vm_name/$vm_name\-$VM_BACKUP_DIR_NAMING_CONVENTION";
+                    #$vm_backup_dir = "[$VM_BACKUP_DATASTORE] $VM_BACKUP_DIRECTORY/$vm_name/$vm_name\-$VM_BACKUP_DIR_NAMING_CONVENTION";
+		    $vm_backup_dir = "/tmp/$VM_BACKUP_DIRECTORY/$vm_name/$vm_name\-$VM_BACKUP_DIR_NAMING_CONVENTION";
                     my $vmx_file = $vm_view->config->files->vmPathName;
-                                       ($vmx_file) = ($vmx_file =~ m|.*/(.*)|);    
+                    ($vmx_file) = ($vmx_file =~ m|.*/(.*)|);    
                     my ($vm_datastore) = ($vmx_config=~ /\[([^]]+)/);
                     
                     if(defined($configDir)) {
                         &log("info", "CONFIG - USING CONFIGURATION FILE = " . $vm_name);
-                                        &log("info", "CONFIG - BACKUP_LOG_OUTPUT = " . $backup_log_output);
-                                            &log("info", "CONFIG - VM_BACKUP_DATASTORE = " . $VM_BACKUP_DATASTORE);
-                                            &log("info", "CONFIG - VM_BACKUP_DIRECTORY = " . $VM_BACKUP_DIRECTORY);
-                                            &log("info", "CONFIG - DISK_BACKUP_FORMAT = " . $DISK_BACKUP_FORMAT);
-                                            &log("info", "CONFIG - ADAPTER_FORMAT = " . $ADAPTER_FORMAT);
-                                            my $powerDowntext = ($POWER_VM_DOWN_BEFORE_BACKUP ? "YES" : "NO");
-                                                &log("info", "CONFIG - POWER_VM_DOWN_BEFORE_BACKUP = " . $powerDowntext);
-                                            my $memtext = ($VM_SNAPSHOT_MEMORY ? "YES" : "NO");
-                                            &log("info", "CONFIG - VM_SNAPSHOT_MEMORY = " . $memtext);
-                                            my $quitext = ($VM_SNAPSHOT_QUIESCE ? "YES" : "NO");
-                                            &log("info", "CONFIG - VM_SNAPSHOT_QUIESCE = " . $quitext);
-                                            &log("info", "CONFIG - VM_BACKUP_DIR_NAMING_CONVENTION = " . $VM_BACKUP_DIR_NAMING_CONVENTION);
-                                            &log("info", "CONFIG - VM_VMDK_FILES = " . $VM_VMDK_FILES . "\n");    
+                        &log("info", "CONFIG - BACKUP_LOG_OUTPUT = " . $backup_log_output);
+                        &log("info", "CONFIG - VM_BACKUP_DATASTORE = " . $VM_BACKUP_DATASTORE);
+                        &log("info", "CONFIG - VM_BACKUP_DIRECTORY = " . $VM_BACKUP_DIRECTORY);
+                        &log("info", "CONFIG - DISK_BACKUP_FORMAT = " . $DISK_BACKUP_FORMAT);
+                        &log("info", "CONFIG - ADAPTER_FORMAT = " . $ADAPTER_FORMAT);
+                        my $powerDowntext = ($POWER_VM_DOWN_BEFORE_BACKUP ? "YES" : "NO");
+                        &log("info", "CONFIG - POWER_VM_DOWN_BEFORE_BACKUP = " . $powerDowntext);
+                        my $memtext = ($VM_SNAPSHOT_MEMORY ? "YES" : "NO");
+                        &log("info", "CONFIG - VM_SNAPSHOT_MEMORY = " . $memtext);
+                        my $quitext = ($VM_SNAPSHOT_QUIESCE ? "YES" : "NO");
+                        &log("info", "CONFIG - VM_SNAPSHOT_QUIESCE = " . $quitext);
+                        &log("info", "CONFIG - VM_BACKUP_DIR_NAMING_CONVENTION = " . $VM_BACKUP_DIR_NAMING_CONVENTION);
+                        &log("info", "CONFIG - VM_VMDK_FILES = " . $VM_VMDK_FILES . "\n");    
                     }
 
                     if($enable_dryrun eq 1) {
                         my $licMgr = Vim::get_view(mo_ref => $content->licenseManager);
-                            my $licenses = $licMgr->licenses;
-                            my $licenseType = "";
-                            foreach(@$licenses) {
-                                $licenseType .= $_->editionKey . " ";
-                            }
+                        my $licenses = $licMgr->licenses;
+                        my $licenseType = "";
+                        foreach(@$licenses) {
+                            $licenseType .= $_->editionKey . " ";
+                        }
 
                         &log("info", "---------- DRYRUN DEBUG INFO " . $vm_name . " ----------");
                         &log("info", "DEBUG - Host Build: ". $content->about->fullName);
@@ -632,19 +592,21 @@ sub backUpVMs {
                     } else {
 
                         #####################
-                                    # CREATE BACKUP DIR
+                        # CREATE BACKUP DIR
                         #####################
                         &log("info", "Initiate backup for ". $vm_name ." found on ". $host);
 
-                        my $dir_result = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --mkdir "[$VM_BACKUP_DATASTORE] $VM_BACKUP_DIRECTORY"  2>&1`;
-                                       $dir_result = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --mkdir "[$VM_BACKUP_DATASTORE] $VM_BACKUP_DIRECTORY/$vm_name"  2>&1`;
-                                       $dir_result = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --mkdir "[$VM_BACKUP_DATASTORE] $VM_BACKUP_DIRECTORY/$vm_name/$vm_name\-$VM_BACKUP_DIR_NAMING_CONVENTION" 2>&1`;
+                        #my $dir_result = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --mkdir "[$VM_BACKUP_DATASTORE] $VM_BACKUP_DIRECTORY"  2>&1`;
+                        #$dir_result = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --mkdir "[$VM_BACKUP_DATASTORE] $VM_BACKUP_DIRECTORY/$vm_name"  2>&1`;
+                        #$dir_result = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --mkdir "[$VM_BACKUP_DATASTORE] $VM_BACKUP_DIRECTORY/$vm_name/$vm_name\-$VM_BACKUP_DIR_NAMING_CONVENTION" 2>&1`;
+			my $dir_result = `mkdir -p "/tmp/$VM_BACKUP_DIRECTORY/$vm_name/$vm_name\-$VM_BACKUP_DIR_NAMING_CONVENTION" 2>&1`;
 
                         #####################
                         # COPY VMX FILE
                         #####################
-                        my $vmx_copy =  `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --copy "$vmx_config" "$vm_backup_dir/$vmx_file" 2>&1`;
-                            
+                        #my $vmx_copy =  `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --copy "$vmx_config" "$vm_backup_dir/$vmx_file" 2>&1`;
+			my $vmx_copy =  `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --get "$vmx_config" "$vm_backup_dir/$vmx_file" 2>&1`;                        
+   
                         #####################
                         # GET STATE
                         #####################
@@ -652,7 +614,7 @@ sub backUpVMs {
                         &log("debug", $vm_name ." original powerState: ". $original_vm_state);
         
                         #####################
-                                    # POWER OFF IF SET
+                        # POWER OFF IF SET
                         #####################
                         my $returnStatus="OK";
                         if( ($POWER_VM_DOWN_BEFORE_BACKUP eq 1) && ($original_vm_state eq 'poweredOn')  ) {
@@ -662,27 +624,27 @@ sub backUpVMs {
                             # CREATE SNAPSHOT 
                             #####################
                             $snapshot_name = "ghettoVCBg2-snapshot-".timeStamp('YMD');
-                            $returnStatus= &create_snapshot($vm_view,$snapshot_name,$vm_name,$VM_SNAPSHOT_MEMORY,$VM_SNAPSHOT_QUIESCE);
+                            $returnStatus = &create_snapshot($vm_view,$snapshot_name,$vm_name,$VM_SNAPSHOT_MEMORY,$VM_SNAPSHOT_QUIESCE);
                         }
                             
                         #####################
-                                    # BACKUP VMDK
+                        # BACKUP VMDK
                         #####################
                         if ($returnStatus eq "OK"){  # only if there is a snapshort or vm is powered off 
-                            my $vm_disks = $vm_view->layout->disk;
+                            my $vm_disks = $vm_view->layoutEx->disk;
                             my @num_disks_ref = @$vm_disks;
                             my $num_disks = @num_disks_ref;
                             &log("info", $vm_name ." has ". $num_disks ." VMDK(s)");
                             &backupVMDK($vm_disks,$vm_datastore,$vm_backup_dir,$vm_view);
 
                             #####################
-                                        # UPDATE VM VIEW
-                                        #####################
-                                        $vm_view->update_view_data();
+                            # UPDATE VM VIEW
+                            #####################
+                            $vm_view->update_view_data();
 
-                                        #####################
-                                        # POWER ON VM IF SET
-                                        #####################
+                            #####################
+                            # POWER ON VM IF SET
+                            #####################
                             if( ($POWER_VM_DOWN_BEFORE_BACKUP eq 1) && ($original_vm_state eq 'poweredOn') ) {
                                 &poweronVM($vm_view,$vm_name);
                             } elsif( ($original_vm_state eq 'poweredOn') || ($original_vm_state eq 'suspended') ) {
@@ -695,8 +657,7 @@ sub backUpVMs {
                             #####################
                             # CHECK ROTATION
                             #####################
-                            &checkVMBackupRotation($vm_view,"[$VM_BACKUP_DATASTORE] $VM_BACKUP_DIRECTORY/$vm_name","[$VM_BACKUP_DATASTORE] $VM_BACKUP_DIRECTORY/$vm_name/$vm_name\-$VM_BACKUP_DIR_NAMING_CONVENTION",$vm_name,$vmx_file);
-                            
+                            #&checkVMBackupRotation($vm_view, "/tmp/$VM_BACKUP_DIRECTORY/$vm_name", "/tmp/$VM_BACKUP_DIRECTORY/$vm_name/$vm_name\-$VM_BACKUP_DIR_NAMING_CONVENTION", $vm_name, $vmx_file);
                             &log("info",  "Backup completed for ". $vm_name ."!\n");
                             $success_backups{$vm_name} = 1;
                             %vmdk_type = ();
@@ -773,15 +734,16 @@ sub shutdownVM {
 }
 
 sub checkVMBackupRotation {
-        my ($vm_view, $BACKUP_DIR_PATH,$BACKUP_VM_NAMING_CONVENTION,$vm_name,$vmx_file) = @_;
-    my @LIST_BACKUPS = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --dir "$BACKUP_DIR_PATH" 2>&1`;
+    my ($vm_view, $BACKUP_DIR_PATH, $BACKUP_VM_NAMING_CONVENTION, $vm_name, $vmx_file) = @_;
+    #my @LIST_BACKUPS = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --dir "$BACKUP_DIR_PATH" 2>&1`;
+    my @LIST_BACKUPS = `ls "$BACKUP_DIR_PATH" 2>&1`;
 
     &log("debug", "checkVMBackupRotation: Starting ...");
 
-        #default rotation if variable is not defined
-        if(!defined($VM_BACKUP_ROTATION_COUNT)) {
-                $VM_BACKUP_ROTATION_COUNT = "1";
-        }
+    #default rotation if variable is not defined
+    if(!defined($VM_BACKUP_ROTATION_COUNT)) {
+        $VM_BACKUP_ROTATION_COUNT = "1";
+    }
 
     chomp(@LIST_BACKUPS);
 
@@ -803,31 +765,46 @@ sub checkVMBackupRotation {
 
             if($TMP eq $BACKUP_VM_NAMING_CONVENTION) {
                 $NEW=$TMP."--1";
-                $mv_dir = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --move "$TMP_DIR" "$NEW" 2>&1`;
+                #$mv_dir = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --move "$TMP_DIR" "$NEW" 2>&1`;
+                $mv_dir = `mv "$TMP_DIR" "$NEW" 2>&1`;
             } elsif($TMP ge $VM_BACKUP_ROTATION_COUNT) {
                 my $path = $TMP_DIR;
 
-                my $fm = Vim::get_view (mo_ref => $content->{fileManager});
+                #my $fm = Vim::get_view (mo_ref => $content->{fileManager});
                 eval {
-                    $fm->DeleteDatastoreFile(name => $path);
+                    #$fm->DeleteDatastoreFile(name => $path);
+		    my $rm_dir = `rm -rf "$path" 2>&1`;
                     &log("debug", "Purging ". $path ." due to rotation max");
                 };
                 if($@) { &log("debug", "Unable to purge ". $path ." due to rotation max");}
             } else {
                 my ($BASE, $BAD) = split('--',$TMP_DIR);
                 $NEW = $BASE."--".($TMP+1);
-                $mv_dir = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --move "$TMP_DIR" "$NEW" 2>&1`;
+                #$mv_dir = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --move "$TMP_DIR" "$NEW" 2>&1`;
+                $mv_dir = `mv "$TMP_DIR" "$NEW" 2>&1`;
             }
         }
     }
 }
 
 sub backupVMDK {
-    my ($vm_disks,$vm_datastore,$vm_backup_dir, $vm_view) = @_;
-    foreach(@$vm_disks) {
-        my $disk_files = $_->diskFile;
-        my $diskKey = $_->key;
-        foreach(@$disk_files) {
+    my ($vm_disks, $vm_datastore, $vm_backup_dir, $vm_view) = @_;
+
+    # Create a hash object to store files making up the VMDK and other information of value
+    my %disk_parts;
+    foreach my $disk ( @{$vm_disks} ) {
+        $disk_parts{$disk->key} = ( );
+        foreach my $duc ( @{$disk->chain || [ ] } ) {
+            foreach my $fileKey ( @{$duc->fileKey} ) {
+                my ($file) = grep ( $_->key eq $fileKey, @{$vm_view->{'layoutEx'}->file} );
+                push @{$disk_parts{$disk->key}}, $file->name;
+            }
+        }
+    }
+
+    foreach my $diskKey ( keys %disk_parts ) {
+	#print Dumper ($disk_parts{$diskKey}) . "\n\n\n";
+        foreach( @{$disk_parts{$diskKey}} ) {
             if( ($vmdk_type{$diskKey} ne 'prdm') && ($vmdk_type{$diskKey} ne 'independent') ) {
                 my $curr_vmdk_path = $_;
                 my ($tmp_vm_datastore) = ($curr_vmdk_path =~ /\[([^]]+)/);
@@ -838,24 +815,26 @@ sub backupVMDK {
                     $vmdk_backup_destination = $vm_backup_dir."/".$tmp_vm_vmdk;
                 } else {
                     $vmdk_backup_destination = $vm_backup_dir."/".$tmp_vm_datastore."/".$tmp_vm_vmdk;
-                    my $ds_mkdir = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --mkdir "$vm_backup_dir/$tmp_vm_datastore" 2>&1`;
+                    my $dir_result = `mkdir  "$vm_backup_dir/$tmp_vm_datastore" 2>&1`;
+                    #my $ds_mkdir = `$vifs_cmd --server "$host" --username "$host_username" --password "$host_password" --mkdir "$vm_backup_dir/$tmp_vm_datastore" 2>&1`;
                 }
 
                 my $isVMDKFound = &findVMDKFile($tmp_vm_vmdk, $VM_VMDK_FILES);
                 
-                    if ($VM_VMDK_FILES eq "all" || $isVMDKFound ){
+                if ($VM_VMDK_FILES eq "all" || $isVMDKFound ){
                     &log("debug", "backupVMDK: Backing up \"". $_ ."\" to \"". $vmdk_backup_destination ."\"");
                         
                     #$copyCmd is shared with copyThread
                         
                     #case for legacy VIMA 1.0
-                    if($vima_ver eq "1.0.0" && ($DISK_BACKUP_FORMAT eq 'zeroedthick' || $DISK_BACKUP_FORMAT eq 'eagezeroedthick')) {
-                        $copyCmd = $vmkfstools_cmd  ." --server \"". $host ."\" --username \"". $host_username ."\" --password \"". $host_password ."\" -i \"". $_ ."\" -a ". $ADAPTER_FORMAT ." -d \"".  $vmdk_backup_destination ."\" 2>&1";
-                    } else {
-                        #vMA 4.0.0 should have fixed the issue
-                        $copyCmd = $vmkfstools_cmd ." --server \"". $host ."\" --username \"". $host_username ."\" --password \"". $host_password ."\" -i \"". $_ ."\" -a ". $ADAPTER_FORMAT ." -d ". $DISK_BACKUP_FORMAT ." \"". $vmdk_backup_destination ."\" 2>&1";
-                    }
+                    #if($vima_ver eq "1.0.0" && ($DISK_BACKUP_FORMAT eq 'zeroedthick' || $DISK_BACKUP_FORMAT eq 'eagezeroedthick')) {
+                    #    $copyCmd = $vmkfstools_cmd  ." --server \"". $host ."\" --username \"". $host_username ."\" --password \"". $host_password ."\" -i \"". $_ ."\" -a ". $ADAPTER_FORMAT ." -d \"".  $vmdk_backup_destination ."\" 2>&1";
+                    #} else {
+                    #    #vMA 4.0.0 should have fixed the issue
+                    #    $copyCmd = $vmkfstools_cmd ." --server \"". $host ."\" --username \"". $host_username ."\" --password \"". $host_password ."\" -i \"". $_ ."\" -a ". $ADAPTER_FORMAT ." -d ". $DISK_BACKUP_FORMAT ." \"". $vmdk_backup_destination ."\" 2>&1";
+                    #}
 
+                    $copyCmd = $vifs_cmd ." --server \"". $host ."\" --username \"". $host_username ."\" --password \"". $host_password ."\" --get \"". $_ ."\"  \"". $vmdk_backup_destination ."\" 2>&1";		
                     if ($copyThreadStatus eq "exit") {
                         &log("error", "backupVMDK: ERROR - copyThread not alive!");                    
                     } else {
@@ -872,7 +851,8 @@ sub backupVMDK {
                         } until(($copyThreadStatus eq "copySuccess") || ($copyThreadStatus eq "copyFail") || ($copyThreadStatus eq "exit"));
                 
                         if ($copyThreadStatus eq "copySuccess") {
-                                                &log("debug", "backupVMDK: Successfully completed backup for ". $_  ." Elapsed time: ". $elapsedTime ." min");                                } else {
+                            &log("debug", "backupVMDK: Successfully completed backup for ". $_  ." Elapsed time: ". $elapsedTime ." min");                                
+                        } else {
                             &log("error", "backupVMDK: ERROR - Unable to backup VMDK: ". $_  ." Elapsed time: ". $elapsedTime ." min");
                         }    
                     }
@@ -907,7 +887,7 @@ sub findVMDKFile {
 sub create_snapshot {
     my ($vm_view, $snapshot_name, $vm_name, $mem, $qui) = @_;
     my $status = "OK";
-          eval {
+    eval {
         my $taskRef = $vm_view->CreateSnapshot_Task(name => $snapshot_name,
                 description => 'Snapshot created for Virtual Machine '.$vm_view->name,
                 memory => $mem,
@@ -915,20 +895,19 @@ sub create_snapshot {
         &log("debug", "Creating Snapshot \"". $snapshot_name ."\" for ". $vm_name);     
 
         my $task_view = Vim::get_view(mo_ref => $taskRef);
-            my $taskinfo = $task_view->info->state->val;
-               my $continue = 1;
-            while ($continue) {
-                    my $info = $task_view->info;
-                    if ($info->state->val eq 'success') {
-                            $continue = 0;
-                    } elsif ($info->state->val eq 'error') {
+        my $taskinfo = $task_view->info->state->val;
+        my $continue = 1;
+        while ($continue) {
+            my $info = $task_view->info;
+            if ($info->state->val eq 'success') {
+                $continue = 0;
+            } elsif ($info->state->val eq 'error') {
                 $status="FAIL";
                 $continue = 0;
-                    }
-            sleep 5;
-                    $task_view->ViewBase::update_view_data();
             }
-    
+            sleep 5;
+            $task_view->ViewBase::update_view_data();
+        }
     };
     if ($@) { 
         &log("error", "ERROR FAULT: ". $@); 
